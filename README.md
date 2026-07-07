@@ -1,2 +1,34 @@
-# TrafficVision-AI-Smart-Traffic-Prediction-Congestion-Management-System
-AI-powered Smart Traffic Prediction &amp; Congestion Management System that leverages real-time and historical traffic data to predict congestion, optimize routes, monitor traffic conditions, and provide intelligent analytics for smart city transportation.
+# TrafficVision AI
+
+## Overview
+
+TrafficVision AI is an AI-powered Smart Traffic Prediction and Congestion Management System.
+
+## Features
+
+- User Authentication
+- Live Traffic Monitoring
+- Traffic Prediction
+- Route Optimization
+- Alerts & Notifications
+- Analytics Dashboard
+
+## Tech Stack
+
+### Frontend
+- React.js
+
+### Backend
+- FastAPI
+
+### Database
+- PostgreSQL
+- MongoDB
+
+### AI
+- Scikit-learn
+- TensorFlow
+
+### Deployment
+- Docker
+- AWS / Azure
