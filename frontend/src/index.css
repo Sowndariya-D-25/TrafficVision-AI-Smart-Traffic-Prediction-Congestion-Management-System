@@ -163,3 +163,42 @@
 .progress-bar-fill.heavy {
   @apply bg-red-500;
 }
+
+/* Compact Sidebar Styles */
+.sidebar-link {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg text-dark-textSecondary transition-all duration-200 hover:bg-dark-surfaceHover hover:text-dark-text hover:translate-x-0.5;
+  font-size: 0.75rem; /* Smaller font */
+}
+
+.sidebar-link-active {
+  @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+}
+
+.sidebar-link-icon {
+  @apply text-base; /* Smaller icons */
+}
+
+/* Make stats cards more compact */
+.stat-card {
+  @apply glass-card glass-card-hover p-4; /* Reduced padding */
+}
+
+.stat-card .stat-value {
+  @apply text-2xl font-bold; /* Smaller numbers */
+}
+
+.stat-card .stat-title {
+  @apply text-xs font-medium; /* Smaller titles */
+}
+
+/* Make tables more compact */
+.table-scroll td, 
+.table-scroll th {
+  @apply py-2 px-3; /* Reduced padding */
+}
+
+/* Compact grid spacing */
+.grid-compact {
+  @apply gap-3; /* Reduced gap */
+}
+

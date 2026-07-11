@@ -157,10 +157,10 @@ function Layout({ children }) {
 
       {/* Main Content */}
       <motion.main
-        className={`flex-1 overflow-y-auto transition-all duration-300 ${
-          isCollapsed ? 'ml-[80px]' : 'ml-[280px]'
-        } ${isMobileOpen ? 'blur-sm md:blur-none' : ''}`}
-      >
+  className={`flex-1 overflow-y-auto ${
+    isMobileOpen ? 'blur-sm md:blur-none' : ''
+  }`}
+>
         <div className="p-6 md:p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
