@@ -18,34 +18,51 @@ import toast from 'react-hot-toast';
 
 function Dashboard() {
   const [trafficData, setTrafficData] = useState([]);
+  const [page, setPage] = useState(1);
+const [limit] = useState(20);
+const [totalRecords, setTotalRecords] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCongestion, setFilterCongestion] = useState('All');
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  useEffect(() => {
-    fetchTrafficData();
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchTrafficData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+ useEffect(() => {
 
+  fetchTrafficData();
+
+  const interval = setInterval(() => {
+    fetchTrafficData();
+  }, 30000);
+
+  return () => clearInterval(interval);
+
+}, [page, searchTerm, filterCongestion]);
   const fetchTrafficData = async () => {
-    try {
-      setLoading(true);
-      const response = await getTrafficData();
-      setTrafficData(response.data);
-      setLastUpdated(new Date());
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load traffic data');
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+    const response = await getTrafficData(
+      page,
+      limit,
+      searchTerm,
+      filterCongestion === "All" ? "" : filterCongestion
+    );
+
+    setTrafficData(response.data.data);
+    setTotalRecords(response.data.total_records);
+    setLastUpdated(new Date());
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load traffic data");
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Statistics
-  const totalRecords = trafficData.length;
+  const currentPageRecords = trafficData.length;
   const totalVehicles = trafficData.reduce((sum, t) => sum + t.vehicle_count, 0);
   const averageSpeed = trafficData.length > 0
     ? (trafficData.reduce((sum, t) => sum + t.average_speed, 0) / trafficData.length).toFixed(1)
@@ -53,12 +70,7 @@ function Dashboard() {
   const highCongestion = trafficData.filter(t => t.congestion_level === 'High').length;
   const moderateCongestion = trafficData.filter(t => t.congestion_level === 'Medium').length;
 
-  // Filtered data
-  const filteredTraffic = trafficData.filter(traffic => {
-    const matchesSearch = traffic.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCongestion = filterCongestion === 'All' || traffic.congestion_level === filterCongestion;
-    return matchesSearch && matchesCongestion;
-  });
+  
 
   const statCards = [
     {
@@ -158,7 +170,7 @@ function Dashboard() {
         >
           <div>
             <p className="text-sm text-dark-textSecondary">Free Flow</p>
-            <p className="text-2xl font-bold text-green-400">{totalRecords - highCongestion - moderateCongestion}</p>
+            <p className="text-2xl font-bold text-green-400">{currentPageRecords - highCongestion - moderateCongestion}</p>
           </div>
           <div className="text-3xl">🟢</div>
         </motion.div>
@@ -210,18 +222,42 @@ function Dashboard() {
       </motion.div>
 
       {/* Traffic Table */}
-      {loading ? (
-        <div className="glass-card p-6 space-y-4">
-          <div className="skeleton h-8 w-48" />
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="skeleton h-12 w-full" />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <TrafficTable trafficData={filteredTraffic} />
-      )}
+{loading ? (
+  <div className="glass-card p-6 space-y-4">
+    <div className="skeleton h-8 w-48" />
+    <div className="space-y-2">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="skeleton h-12 w-full" />
+      ))}
+    </div>
+  </div>
+) : (
+  <>
+    <TrafficTable trafficData={trafficData} />
+
+    <div className="flex items-center justify-between mt-6">
+      <button
+        onClick={() => setPage(page - 1)}
+        disabled={page === 1}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:bg-gray-500"
+      >
+        Previous
+      </button>
+
+      <span className="text-dark-text">
+        Page {page} of {Math.ceil(totalRecords / limit)}
+      </span>
+
+      <button
+        onClick={() => setPage(page + 1)}
+        disabled={page >= Math.ceil(totalRecords / limit)}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white disabled:bg-gray-500"
+      >
+        Next
+      </button>
+    </div>
+  </>
+)}
     </div>
   );
 }

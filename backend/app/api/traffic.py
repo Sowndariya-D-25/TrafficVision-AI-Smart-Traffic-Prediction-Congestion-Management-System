@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from app.schemas.traffic import TrafficData
 from app.database.mongodb import traffic_collection
 from app.dependencies.role_checker import admin_required
@@ -35,14 +35,44 @@ async def add_traffic_data(
 
 
 @router.get("/")
-async def get_all_traffic():
+async def get_all_traffic(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=500),
+    search: str = "",
+    congestion: str = ""
+):
+
+    skip = (page - 1) * limit
+
+    query = {}
+
+    if search:
+        query["location"] = {
+            "$regex": search,
+            "$options": "i"
+        }
+
+    if congestion:
+        query["congestion_level"] = congestion
 
     traffic_list = []
 
-    async for traffic in traffic_collection.find():
+    cursor = (
+        traffic_collection
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+    )
 
+    async for traffic in cursor:
         traffic["_id"] = str(traffic["_id"])
-
         traffic_list.append(traffic)
 
-    return traffic_list
+    total_records = await traffic_collection.count_documents(query)
+
+    return {
+        "page": page,
+        "limit": limit,
+        "total_records": total_records,
+        "data": traffic_list
+    }
